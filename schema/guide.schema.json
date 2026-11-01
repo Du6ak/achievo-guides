@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Achievo Community Guide front matter v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "app_id",
+    "achievement_api_name",
+    "language",
+    "title",
+    "guide_type",
+    "spoilers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "app_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "achievement_api_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-([A-Z]{2}|[0-9]{3}))?$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 500,
+      "default": ""
+    },
+    "guide_type": {
+      "enum": [
+        "quick",
+        "detailed",
+        "safe",
+        "combo",
+        "alternative"
+      ]
+    },
+    "spoilers": {
+      "type": "boolean"
+    },
+    "author_name": {
+      "type": "string",
+      "maxLength": 80,
+      "default": ""
+    },
+    "translation_of": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "default": null
+    },
+    "related_achievements": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      }
+    },
+    "source_urls": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "string",
+        "maxLength": 2048,
+        "format": "uri",
+        "pattern": "^https?://"
+      }
+    },
+    "content": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/content"
+        }
+      ],
+      "default": null
+    }
+  },
+  "$defs": {
+    "part": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "kind": {
+          "enum": [
+            "TEXT",
+            "IMAGE"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 32768
+        },
+        "attachmentId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "text",
+        "attachmentId"
+      ]
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/part"
+          },
+          "maxItems": 512
+        },
+        "checkable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "parts",
+        "checkable"
+      ]
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/block"
+          },
+          "maxItems": 128
+        },
+        "tips": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/part"
+          },
+          "maxItems": 512
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/part"
+          },
+          "maxItems": 512
+        },
+        "related": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "achievementApiName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "block": {
+                "$ref": "#/$defs/block"
+              }
+            },
+            "required": [
+              "achievementApiName",
+              "title",
+              "block"
+            ]
+          },
+          "maxItems": 32
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "byteSize": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4194304
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8192
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8192
+              }
+            },
+            "required": [
+              "sha256",
+              "byteSize",
+              "width",
+              "height"
+            ]
+          },
+          "maxItems": 24
+        }
+      },
+      "required": [
+        "steps",
+        "tips",
+        "warnings",
+        "related",
+        "attachments"
+      ]
+    }
+  }
+}
